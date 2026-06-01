@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Мой контроль здоровья</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f3f5f7;
+      color: #1f2937;
+    }
+    header {
+      background: linear-gradient(135deg, #1f7a5c, #2f9e75);
+      color: white;
+      padding: 22px 16px;
+      text-align: center;
+    }
+    header h1 { margin: 0 0 8px; font-size: 26px; }
+    header p { margin: 0; opacity: .95; }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 14px;
+    }
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 8px 22px rgba(0,0,0,.07);
+      border: 1px solid #e5e7eb;
+    }
+    h2 {
+      font-size: 19px;
+      margin: 0 0 12px;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-size: 14px;
+      color: #374151;
+    }
+    input, select, textarea, button {
+      width: 100%;
+      padding: 11px;
+      margin-top: 6px;
+      border-radius: 10px;
+      border: 1px solid #d1d5db;
+      font-size: 15px;
+    }
+    textarea { min-height: 72px; resize: vertical; }
+    button {
+      background: #1f7a5c;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      margin-top: 12px;
+    }
+    button.secondary {
+      background: #374151;
+    }
+    button.danger {
+      background: #b91c1c;
+    }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .summary .box {
+      background: white;
+      border-radius: 14px;
+      padding: 14px;
+      box-shadow: 0 5px 14px rgba(0,0,0,.06);
+      border: 1px solid #e5e7eb;
+    }
+    .value {
+      font-size: 24px;
+      font-weight: bold;
+      margin-top: 4px;
+      color: #111827;
+    }
+    .small { color: #6b7280; font-size: 13px; }
+    .list {
+      margin-top: 10px;
+      padding-left: 0;
+      list-style: none;
+    }
+    .list li {
+      background: #f9fafb;
+      padding: 9px 10px;
+      border-radius: 10px;
+      margin-bottom: 7px;
+      border: 1px solid #e5e7eb;
+      font-size: 14px;
+    }
+    .result {
+      background: #eefaf4;
+      border: 1px solid #b9ebd0;
+      color: #0f5132;
+      padding: 11px;
+      border-radius: 10px;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      margin: 14px 0;
+    }
+    .tabs button {
+      min-width: 140px;
+      background: white;
+      color: #1f2937;
+      border: 1px solid #d1d5db;
+      margin-top: 0;
+    }
+    .tabs button.active {
+      background: #1f7a5c;
+      color: white;
+      border-color: #1f7a5c;
+    }
+    .section { display: none; }
+    .section.active { display: block; }
+    .footer-note {
+      color: #6b7280;
+      font-size: 13px;
+      line-height: 1.45;
+      margin: 16px 0 30px;
+    }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Мой контроль здоровья</h1>
+  <p>Питание, вода, ходьба, вес, давление и итог дня</p>
+</header>
+
+<main>
+  <label>Дата</label>
+  <input type="date" id="dateInput"/>
+
+  <div class="summary">
+    <div class="box"><div class="small">Съедено</div><div class="value" id="sumCalories">0</div><div class="small">ккал</div></div>
+    <div class="box"><div class="small">Сожжено ходьбой</div><div class="value" id="sumBurned">0</div><div class="small">ккал</div></div>
+    <div class="box"><div class="small">Итог</div><div class="value" id="sumNet">0</div><div class="small">ккал</div></div>
+    <div class="box"><div class="small">Вода</div><div class="value" id="sumWater">0</div><div class="small">мл</div></div>
+  </div>
+
+  <div class="tabs">
+    <button class="active" onclick="showTab('food')">Питание</button>
+    <button onclick="showTab('walk')">Ходьба</button>
+    <button onclick="showTab('water')">Вода</button>
+    <button onclick="showTab('health')">Вес/давление</button>
+    <button onclick="showTab('report')">Итог</button>
+  </div>
+
+  <section id="food" class="section active">
+    <div class="grid">
+      <div class="card">
+        <h2>Добавить еду</h2>
+        <label>Прием пищи</label>
+        <select id="meal">
+          <option>Завтрак</option><option>Обед</option><option>Ужин</option><option>Перекус</option>
+        </select>
+        <label>Что ел</label>
+        <input id="foodName" placeholder="Например: 2 яйца, хлеб, чай"/>
+        <label>Калории</label>
+        <input id="foodCalories" type="number" placeholder="Например: 450"/>
+        <button onclick="addFood()">Добавить</button>
+        <div class="result">Пока калории вводятся вручную. Ниже есть подсказки по частым продуктам.</div>
+      </div>
+      <div class="card">
+        <h2>Подсказки по калориям</h2>
+        <ul class="list">
+          <li>1 яйцо — примерно 70 ккал</li>
+          <li>1 кусок хлеба — 70–90 ккал</li>
+          <li>Чай с 1 ложкой сахара — 20–25 ккал</li>
+          <li>100 г вареной говядины — 250–280 ккал</li>
+          <li>100 г картошки — 80–90 ккал</li>
+          <li>1 тарелка супа — примерно 250–400 ккал</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Еда за день</h2>
+      <ul id="foodList" class="list"></ul>
+    </div>
+  </section>
+
+  <section id="walk" class="section">
+    <div class="card">
+      <h2>Ходьба</h2>
+      <label>Мой вес, кг</label>
+      <input id="walkWeight" type="number" placeholder="Например: 130"/>
+      <label>Сколько прошел</label>
+      <input id="walkDistance" type="number" step="0.1" placeholder="Например: 4.5"/>
+      <label>Единица</label>
+      <select id="walkUnit">
+        <option value="km">км</option>
+        <option value="steps">шагов</option>
+      </select>
+      <button onclick="addWalk()">Записать ходьбу</button>
+      <div class="result">Расчет примерный. Формула: при ходьбе примерно 0,55 ккал × вес × км.</div>
+      <ul id="walkList" class="list"></ul>
+    </div>
+  </section>
+
+  <section id="water" class="section">
+    <div class="card">
+      <h2>Вода</h2>
+      <label>Сколько выпил, мл</label>
+      <input id="waterAmount" type="number" placeholder="Например: 250"/>
+      <button onclick="addWater(250)">+ 250 мл</button>
+      <button onclick="addWater(500)">+ 500 мл</button>
+      <button onclick="addWater()">Добавить вручную</button>
+      <ul id="waterList" class="list"></ul>
+    </div>
+  </section>
+
+  <section id="health" class="section">
+    <div class="grid">
+      <div class="card">
+        <h2>Вес</h2>
+        <label>Вес, кг</label>
+        <input id="weightValue" type="number" step="0.1" placeholder="Например: 130.0"/>
+        <button onclick="saveWeight()">Сохранить вес</button>
+      </div>
+      <div class="card">
+        <h2>Давление утром</h2>
+        <label>Верхнее</label>
+        <input id="bpMorningSys" type="number" placeholder="Например: 140"/>
+        <label>Нижнее</label>
+        <input id="bpMorningDia" type="number" placeholder="Например: 90"/>
+        <label>Пульс</label>
+        <input id="bpMorningPulse" type="number" placeholder="Например: 80"/>
+        <label>Заметка утром</label>
+        <textarea id="bpMorningNote" placeholder="Например: голова болела, плохо спал, вставал ночью"></textarea>
+        <button onclick="saveBP('morning')">Сохранить утреннее давление</button>
+      </div>
+      <div class="card">
+        <h2>Давление вечером</h2>
+        <label>Верхнее</label>
+        <input id="bpEveningSys" type="number" placeholder="Например: 135"/>
+        <label>Нижнее</label>
+        <input id="bpEveningDia" type="number" placeholder="Например: 85"/>
+        <label>Пульс</label>
+        <input id="bpEveningPulse" type="number" placeholder="Например: 76"/>
+        <label>Заметка вечером</label>
+        <textarea id="bpEveningNote" placeholder="Например: усталость, прогулка, стресс, самочувствие"></textarea>
+        <button onclick="saveBP('evening')">Сохранить вечернее давление</button>
+      </div>
+      <div class="card">
+        <h2>Самочувствие</h2>
+        <label>Заметки</label>
+        <textarea id="notes" placeholder="Например: ночью вставал 3 раза, ноги гудели, голова не болела"></textarea>
+        <button onclick="saveNotes()">Сохранить заметку</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="report" class="section">
+    <div class="card">
+      <h2>Итог дня</h2>
+      <div id="dailyReport" class="result"></div>
+      <button class="secondary" onclick="exportCSV()">Скачать данные CSV</button>
+      <button class="danger" onclick="clearDay()">Очистить выбранный день</button>
+    </div>
+  </section>
+
+  <p class="footer-note">
+    Это личный дневник, а не медицинская программа. Данные сохраняются в браузере устройства.
+    Если очистить браузер, данные могут удалиться. Для важных данных периодически нажимай “Скачать данные CSV”.
+  </p>
+</main>
+
+<script>
+const STORAGE_KEY = "my_health_app_v1";
+const today = new Date().toISOString().slice(0,10);
+document.getElementById("dateInput").value = today;
+document.getElementById("dateInput").addEventListener("change", render);
+
+function loadData() {
+  return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+}
+function saveData(data) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+function getDay() {
+  const date = document.getElementById("dateInput").value;
+  const data = loadData();
+  if (!data[date]) data[date] = { food: [], walks: [], water: [], weight: "", bpMorning: null, bpEvening: null, notes: "" };
+  saveData(data);
+  return { data, date, day: data[date] };
+}
+function showTab(id) {
+  document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+  document.querySelectorAll(".tabs button").forEach(b => b.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  event.target.classList.add("active");
+  render();
+}
+function addFood() {
+  const { data, date, day } = getDay();
+  const meal = document.getElementById("meal").value;
+  const name = document.getElementById("foodName").value.trim();
+  const calories = Number(document.getElementById("foodCalories").value);
+  if (!name || !calories) return alert("Напиши еду и калории");
+  day.food.push({ meal, name, calories });
+  saveData(data);
+  document.getElementById("foodName").value = "";
+  document.getElementById("foodCalories").value = "";
+  render();
+}
+function addWalk() {
+  const { data, day } = getDay();
+  const weight = Number(document.getElementById("walkWeight").value);
+  const amount = Number(document.getElementById("walkDistance").value);
+  const unit = document.getElementById("walkUnit").value;
+  if (!weight || !amount) return alert("Укажи вес и сколько прошел");
+  let km = unit === "steps" ? amount * 0.00075 : amount;
+  let burned = Math.round(0.55 * weight * km);
+  day.walks.push({ weight, amount, unit, km: Number(km.toFixed(2)), burned });
+  saveData(data);
+  document.getElementById("walkDistance").value = "";
+  render();
+}
+function addWater(manual) {
+  const { data, day } = getDay();
+  let amount = manual || Number(document.getElementById("waterAmount").value);
+  if (!amount) return alert("Укажи количество воды");
+  day.water.push({ amount });
+  saveData(data);
+  document.getElementById("waterAmount").value = "";
+  render();
+}
+function saveWeight() {
+  const { data, day } = getDay();
+  day.weight = document.getElementById("weightValue").value;
+  saveData(data);
+  render();
+}
+function saveBP(type) {
+  const { data, day } = getDay();
+  const prefix = type === "morning" ? "bpMorning" : "bpEvening";
+  const sys = document.getElementById(prefix + "Sys").value;
+  const dia = document.getElementById(prefix + "Dia").value;
+  const pulse = document.getElementById(prefix + "Pulse").value;
+  const note = document.getElementById(prefix + "Note").value;
+  if (!sys || !dia) return alert("Укажи верхнее и нижнее давление");
+  const record = { sys, dia, pulse, note };
+  if (type === "morning") day.bpMorning = record;
+  if (type === "evening") day.bpEvening = record;
+  saveData(data);
+  render();
+}
+function saveNotes() {
+  const { data, day } = getDay();
+  day.notes = document.getElementById("notes").value;
+  saveData(data);
+  render();
+}
+function clearDay() {
+  if (!confirm("Очистить данные за выбранный день?")) return;
+  const data = loadData();
+  const date = document.getElementById("dateInput").value;
+  delete data[date];
+  saveData(data);
+  render();
+}
+function exportCSV() {
+  const data = loadData();
+  let rows = [["date","calories_eaten","calories_burned","water_ml","weight","blood_pressure","notes"]];
+  Object.keys(data).sort().forEach(date => {
+    const d = data[date];
+    const cal = d.food.reduce((s,x)=>s+Number(x.calories||0),0);
+    const burned = d.walks.reduce((s,x)=>s+Number(x.burned||0),0);
+    const water = d.water.reduce((s,x)=>s+Number(x.amount||0),0);
+    const bpMorning = d.bpMorning ? `morning ${d.bpMorning.sys}/${d.bpMorning.dia} pulse ${d.bpMorning.pulse||""} note ${d.bpMorning.note||""}` : "";
+    const bpEvening = d.bpEvening ? `evening ${d.bpEvening.sys}/${d.bpEvening.dia} pulse ${d.bpEvening.pulse||""} note ${d.bpEvening.note||""}` : "";
+    const bp = [bpMorning, bpEvening].filter(Boolean).join(" | ");
+    rows.push([date, cal, burned, water, d.weight||"", bp, (d.notes||"").replaceAll("\n"," ")]);
+  });
+  const csv = rows.map(r => r.map(v => `"${String(v).replaceAll('"','""')}"`).join(",")).join("\n");
+  const blob = new Blob([csv], {type: "text/csv;charset=utf-8"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "my-health-data.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+function render() {
+  const { day } = getDay();
+  const calories = day.food.reduce((s,x)=>s+Number(x.calories||0),0);
+  const burned = day.walks.reduce((s,x)=>s+Number(x.burned||0),0);
+  const water = day.water.reduce((s,x)=>s+Number(x.amount||0),0);
+  document.getElementById("sumCalories").textContent = calories;
+  document.getElementById("sumBurned").textContent = burned;
+  document.getElementById("sumNet").textContent = calories - burned;
+  document.getElementById("sumWater").textContent = water;
+  document.getElementById("foodList").innerHTML = day.food.map(x => `<li>${x.meal}: ${x.name} — ${x.calories} ккал</li>`).join("") || "<li>Пока нет записей</li>";
+  document.getElementById("walkList").innerHTML = day.walks.map(x => `<li>${x.amount} ${x.unit === "km" ? "км" : "шагов"} ≈ ${x.km} км — сожжено ${x.burned} ккал</li>`).join("") || "<li>Пока нет записей</li>";
+  document.getElementById("waterList").innerHTML = day.water.map(x => `<li>${x.amount} мл</li>`).join("") || "<li>Пока нет записей</li>";
+  document.getElementById("weightValue").value = day.weight || "";
+  const morning = day.bpMorning || {};
+  document.getElementById("bpMorningSys").value = morning.sys || "";
+  document.getElementById("bpMorningDia").value = morning.dia || "";
+  document.getElementById("bpMorningPulse").value = morning.pulse || "";
+  document.getElementById("bpMorningNote").value = morning.note || "";
+
+  const evening = day.bpEvening || {};
+  document.getElementById("bpEveningSys").value = evening.sys || "";
+  document.getElementById("bpEveningDia").value = evening.dia || "";
+  document.getElementById("bpEveningPulse").value = evening.pulse || "";
+  document.getElementById("bpEveningNote").value = evening.note || "";
+  document.getElementById("notes").value = day.notes || "";
+  let report = `Съедено: ${calories} ккал. Сожжено ходьбой: ${burned} ккал. Итог: ${calories - burned} ккал. Вода: ${water} мл.`;
+  if (day.weight) report += ` Вес: ${day.weight} кг.`;
+  if (day.bpMorning) report += ` Утром давление: ${day.bpMorning.sys}/${day.bpMorning.dia}, пульс ${day.bpMorning.pulse || "-"}${day.bpMorning.note ? ", заметка: " + day.bpMorning.note : ""}.`;
+  if (day.bpEvening) report += ` Вечером давление: ${day.bpEvening.sys}/${day.bpEvening.dia}, пульс ${day.bpEvening.pulse || "-"}${day.bpEvening.note ? ", заметка: " + day.bpEvening.note : ""}.`;
+  if (day.notes) report += ` Заметки: ${day.notes}`;
+  document.getElementById("dailyReport").textContent = report;
+}
+render();
+</script>
+</body>
+</html>
